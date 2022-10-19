@@ -14,6 +14,9 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+batch_size = 100
+learning_rate = 0.001
+
 # MNIST dataset 
 train_dataset = torchvision.datasets.MNIST(root='./data', 
                                            train=True, 
@@ -24,7 +27,18 @@ test_dataset = torchvision.datasets.MNIST(root='./data',
                                           train=False, 
                                           transform=transforms.ToTensor())
 
-  
+# Data loader
+train_data_loader = torch.utils.data.DataLoader(dataset=train_dataset, 
+                                           batch_size=batch_size, 
+                                           shuffle=True)
+
+test_data_loader = torch.utils.data.DataLoader(dataset=test_dataset, 
+                                          batch_size=batch_size, 
+                                          shuffle=False)
+
+examples = iter(test_data_loader)
+example_data, example_targets = examples.next()
+
 # Define a neural network YOUR ROLL NUMBER (all small letters) should prefix the classname
 class cs19b004NN(nn.Module):
   pass
@@ -42,7 +56,7 @@ class cs19b004NN(nn.Module):
         self.fc1 = nn.Linear(in_features=width*height*20, out_features=classes)
         self.softmax = nn.LogSoftmax()
 
-    def forward(self, x):
+   def forward(self, x):
         x = self.conv1(x)
         x = self.relu1(x)
         x = self.conv2(x)
@@ -102,9 +116,24 @@ def get_model(train_data_loader=None, n_epochs=10):
   
   return model
 
+class cs19b004module(nn.Module):
+    def __init__(self, list_mod,classes):
+        super().__init__()
+        self.classes =classes
+        self.linears = nn.ModuleList(list_mod)
+        self.flatten = nn.Flatten()
+        self.softmax = nn.LogSoftmax()
+    def forward(self, x):
+        for i in range(len(self.linears)):
+            x = self.linears[i](x)
+        x = self.flatten(x)
+        x = nn.Linear(in_features=x.shape[-1],
+                      out_features=self.classes)(x)
+        x = self.softmax(x)
+        return x
 # sample invocation torch.hub.load(myrepo,'get_model_advanced',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
-  model = cs19b047NN(config)
+  model = cs19b004NN(config)
   # batch_size = 64
   optimizer = torch.optim.SGD(model.parameters(), lr = lr)
   loss_fn = nn.CrossEntropyLoss()
