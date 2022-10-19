@@ -104,7 +104,7 @@ def get_model(train_data_loader=None, n_epochs=10):
 
 # sample invocation torch.hub.load(myrepo,'get_model_advanced',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
-  model = None
+  
 
   # write your code here as per instructions
   # ... your code ...
@@ -121,13 +121,39 @@ def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
   # You need to add a proper fully connected layer as the last layer
   
   # HINT: You can print sizes of tensors to get an idea of the size of the fc layer required
-  # HINT: Flatten function can also be used if required
-  return model
-  
-  
-  print ('Returning model... (rollnumber: cs19b004)')
-  
-  return model
+  # HINT: Flatten function can also be used if required 
+  classes = 0
+    for (X, y) in train_data_loader:
+        classes = torch.max(y).item()-torch.min(y).item()+1
+        break
+    list_mod = []
+    if(config is not None):
+        for module in config:
+            list_mod.append(nn.Conv2d(dtype='float',
+                input=module[0], output=module[1], kernel_size=module[2], stride=module[3], padding=module[4]))
+    list_mod=torch.tensor(list_mod).to(device)
+    model1 = cs19b004AdvancedNN(
+        list_mod=list_mod, classes=classes).to(device)
+    optimizer = torch.optim.SGD(model1.parameters(), lr=1e-3)
+    loss_function = nn.CrossEntropyLoss()
+    for epoch in range(n_epochs):
+        model1.train()
+        train_loss = 0
+        correct = 0
+        for batch, (X, y) in enumerate(train_data_loader):
+            X, y = X.to(device), y.to(device)
+            ypred = model1(X)
+            loss = loss_function(ypred, y)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            train_loss += loss
+            correct += (ypred.argmax(1) == y).type(torch.float).sum().item()
+        print("Epoch", epoch, "accuracy:",
+              correct/len(train_data_loader.dataset))
+    print('Returning model... (rollnumber: cs19b004)')
+
+    return model1
 
 # sample invocation torch.hub.load(myrepo,'test_model',model1=model,test_data_loader=test_data_loader,force_reload=True)
 def test_model(model1=None, test_data_loader=None):
