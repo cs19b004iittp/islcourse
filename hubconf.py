@@ -1,6 +1,9 @@
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
+import torchvision
+import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 from sklearn.metrics import confusion_matrix
@@ -9,14 +12,55 @@ from torch import optim
 from torch.autograd import Variable
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-def kali():
-  print ('kali')
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# MNIST dataset 
+train_dataset = torchvision.datasets.MNIST(root='./data', 
+                                           train=True, 
+                                           transform=transforms.ToTensor(),  
+                                           download=True)
+
+test_dataset = torchvision.datasets.MNIST(root='./data', 
+                                          train=False, 
+                                          transform=transforms.ToTensor())
+
+# Data loader
+train_data_loader = torch.utils.data.DataLoader(dataset=train_dataset, 
+                                           batch_size=batch_size, 
+                                           shuffle=True)
+
+test_data_loader = torch.utils.data.DataLoader(dataset=test_dataset, 
+                                          batch_size=batch_size, 
+                                          shuffle=False)
+
+examples = iter(test_loader)
+example_data, example_targets = examples.next()
+
+input_size = 784
+hidden_size = 512 
+num_classes = 10
+num_epochs = 2
+batch_size = 100
+learning_rate = 0.001
   
 # Define a neural network YOUR ROLL NUMBER (all small letters) should prefix the classname
 class cs19b004NN(nn.Module):
   pass
   # ... your code ...
   # ... write init and forward functions appropriately ...
+  def __init__(self):
+         def _init_(self, input_size, hidden_size, num_classes):
+        super(cs19b047NN, self)._init_()
+        self.input_size = input_size
+        self.l1 = nn.Linear(input_size, hidden_size) 
+        self.relu = nn.ReLU()
+        self.l2 = nn.Linear(hidden_size, num_classes)  
+    
+    def forward(self, x):
+        out = self.l1(x)
+        out = self.relu(out)
+        out = self.l2(out)
+        return out
     
 # sample invocation torch.hub.load(myrepo,'get_model',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model(train_data_loader=None, n_epochs=10):
@@ -29,7 +73,7 @@ def get_model(train_data_loader=None, n_epochs=10):
   # Use softmax and cross entropy loss functions
   # set model variable to proper object, make use of train_data
   
-  print ('Returning model... (rollnumber: xx)')
+  print ('Returning model... (rollnumber: cs19b004)')
   
   return model
 
@@ -56,7 +100,7 @@ def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
   return model
   
   
-  print ('Returning model... (cs19b004: xx)')
+  print ('Returning model... (rollnumber: cs19b004)')
   
   return model
 
@@ -70,6 +114,6 @@ def test_model(model1=None, test_data_loader=None):
   # ... and so on ...
   # calculate accuracy, precision, recall and f1score
   
-  print ('Returning metrics... (rollnumber: xx)')
+  print ('Returning metrics... (rollnumber: cs19b004)')
   
   return accuracy_val, precision_val, recall_val, f1score_val
