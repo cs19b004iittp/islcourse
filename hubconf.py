@@ -24,24 +24,6 @@ test_dataset = torchvision.datasets.MNIST(root='./data',
                                           train=False, 
                                           transform=transforms.ToTensor())
 
-# Data loader
-train_data_loader = torch.utils.data.DataLoader(dataset=train_dataset, 
-                                           batch_size=batch_size, 
-                                           shuffle=True)
-
-test_data_loader = torch.utils.data.DataLoader(dataset=test_dataset, 
-                                          batch_size=batch_size, 
-                                          shuffle=False)
-
-examples = iter(test_loader)
-example_data, example_targets = examples.next()
-
-input_size = 784
-hidden_size = 512 
-num_classes = 10
-num_epochs = 2
-batch_size = 100
-learning_rate = 0.001
   
 # Define a neural network YOUR ROLL NUMBER (all small letters) should prefix the classname
 class cs19b004NN(nn.Module):
@@ -80,8 +62,43 @@ def get_model(train_data_loader=None, n_epochs=10):
   # ... and so on ...
   # Use softmax and cross entropy loss functions
   # set model variable to proper object, make use of train_data
-  
-  print ('Returning model... (rollnumber: cs19b004)')
+    classes=0
+    channels=0
+    width = 0
+    height = 0
+    for (X, y) in train_data_loader:
+        channels = X.shape[1]
+        width = X.shape[2]
+        height = X.shape[3]
+        classes = torch.max(y).item()-torch.min(y).item()+1
+        break
+
+    model = cs19b004NN(channels, width, height,classes).to(device)
+
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+    loss_function = nn.CrossEntropyLoss()
+
+    # training
+    for epoch in range(n_epochs):
+        model.train()
+        train_loss = 0
+        correct = 0
+        for batch, (X, y) in enumerate(train_data_loader):
+            X, y = X.to(device), y.to(device)
+            ypred = model(X)
+            loss = loss_function(ypred, y)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss
+            correct += (ypred.argmax(1) == y).type(torch.float).sum().item()
+        print("Epoch:", epoch, "loss:", train_loss)
+        print("Epoch", epoch, "accuracy:",
+              correct/len(train_data_loader.dataset))
+
+    print('Returning model... (rollnumber: cs19b004)')
   
   return model
 
