@@ -104,67 +104,48 @@ def get_model(train_data_loader=None, n_epochs=10):
 
 # sample invocation torch.hub.load(myrepo,'get_model_advanced',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
-  
+  model = cs19b047NN(config)
+  # batch_size = 64
+  optimizer = torch.optim.SGD(model.parameters(), lr = lr)
+  loss_fn = nn.CrossEntropyLoss()
 
-  # write your code here as per instructions
-  # ... your code ...
-  # ... your code ...
-  # ... and so on ...
-  # Use softmax and cross entropy loss functions
-  # set model variable to proper object, make use of train_data
-  
-  # In addition,
-  # Refer to config dict, where learning rate is given, 
-  # List of (in_channels, out_channels, kernel_size, stride=1, padding='same')  are specified
-  # Example, config = [(1,10,(3,3),1,'same'), (10,3,(5,5),1,'same'), (3,1,(7,7),1,'same')], it can have any number of elements
-  # You need to create 2d convoution layers as per specification above in each element
-  # You need to add a proper fully connected layer as the last layer
-  
-  # HINT: You can print sizes of tensors to get an idea of the size of the fc layer required
-  # HINT: Flatten function can also be used if required 
-  classes = 0
-    for (X, y) in train_data_loader:
-        classes = torch.max(y).item()-torch.min(y).item()+1
-        break
-    list_mod = []
-    if(config is not None):
-        for module in config:
-            list_mod.append(nn.Conv2d(dtype='float',
-                input=module[0], output=module[1], kernel_size=module[2], stride=module[3], padding=module[4]))
-    list_mod=torch.tensor(list_mod).to(device)
-    model1 = cs19b004AdvancedNN(
-        list_mod=list_mod, classes=classes).to(device)
-    optimizer = torch.optim.SGD(model1.parameters(), lr=1e-3)
-    loss_function = nn.CrossEntropyLoss()
-    for epoch in range(n_epochs):
-        model1.train()
-        train_loss = 0
-        correct = 0
-        for batch, (X, y) in enumerate(train_data_loader):
-            X, y = X.to(device), y.to(device)
-            ypred = model1(X)
-            loss = loss_function(ypred, y)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            train_loss += loss
-            correct += (ypred.argmax(1) == y).type(torch.float).sum().item()
-        print("Epoch", epoch, "accuracy:",
-              correct/len(train_data_loader.dataset))
-    print('Returning model... (rollnumber: cs19b004)')
+  for e in range(n_epochs):
+      model.train()
+      totalTrainLoss = 0
+      totalValLoss = 0
+      trainCorrect = 0
+      valCorrect = 0
+      for (x, y) in train_data_loader:
+          (x, y) = (x.to(device), y.to(device))
+          pred = model(x)
+          loss = loss_fn(pred, y)
+          optimizer.zero_grad()
+          loss.backward()
+          optimizer.step()
+          totalTrainLoss += loss
+          trainCorrect += (pred.argmax(1) == y).type(torch.float).sum().item()
+  print ('Returning model... (rollnumber: cs19b004)')
+  return model
 
-    return model1
 
 # sample invocation torch.hub.load(myrepo,'test_model',model1=model,test_data_loader=test_data_loader,force_reload=True)
 def test_model(model1=None, test_data_loader=None):
-
   accuracy_val, precision_val, recall_val, f1score_val = 0, 0, 0, 0
-  # write your code here as per instructions
-  # ... your code ...
-  # ... your code ...
-  # ... and so on ...
-  # calculate accuracy, precision, recall and f1score
   
-  print ('Returning metrics... (rollnumber: cs19b004)')
+  with torch.no_grad():
+    n_correct = 0
+    n_samples = 0
+    for images, labels in test_loader:
+        images = images.reshape(-1, 28*28).to(device)
+        labels = labels.to(device)
+        outputs = model(images)
+        # max returns (value ,index)
+        _, predicted = torch.max(outputs.data, 1)
+        n_samples += labels.size(0)
+        n_correct += (predicted == labels).sum().item()
+
+    accuracy_val= 100.0 * n_correct / n_samples
+   
   
+  print ('Returning metrics... (rollnumber: cs19b047)')
   return accuracy_val, precision_val, recall_val, f1score_val
