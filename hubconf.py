@@ -48,19 +48,27 @@ class cs19b004NN(nn.Module):
   pass
   # ... your code ...
   # ... write init and forward functions appropriately ...
-  def __init__(self):
-         def _init_(self, input_size, hidden_size, num_classes):
-        super(cs19b047NN, self)._init_()
-        self.input_size = input_size
-        self.l1 = nn.Linear(input_size, hidden_size) 
-        self.relu = nn.ReLU()
-        self.l2 = nn.Linear(hidden_size, num_classes)  
-    
+  def __init__(self, input, width, height, classes):
+        super().__init__()
+        self.conv1 = nn.Conv2d(
+            input=input, output=10, kernel_size=(2, 2), padding='same')
+        self.relu1 = nn.ReLU()
+        self.conv2 = nn.Conv2d(
+            input=10, output=20, kernel_size=(2, 2), padding='same')
+        self.relu2 = nn.ReLU()
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(in_features=width*height*20, out_features=classes)
+        self.softmax = nn.LogSoftmax()
+
     def forward(self, x):
-        out = self.l1(x)
-        out = self.relu(out)
-        out = self.l2(out)
-        return out
+        x = self.conv1(x)
+        x = self.relu1(x)
+        x = self.conv2(x)
+        x = self.relu2(x)
+        x = self.flatten(x)
+        x = self.fc1(x)
+        x = self.softmax(x)
+        return x
     
 # sample invocation torch.hub.load(myrepo,'get_model',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model(train_data_loader=None, n_epochs=10):
