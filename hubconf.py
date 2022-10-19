@@ -1,11 +1,19 @@
 import torch
 from torch import nn
+from torch.utils.data import DataLoader
+from torchvision import datasets
+from torchvision.transforms import ToTensor
+from sklearn.metrics import confusion_matrix
+import numpy as np
+from torch import optim
+from torch.autograd import Variable
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 def kali():
   print ('kali')
   
 # Define a neural network YOUR ROLL NUMBER (all small letters) should prefix the classname
-class YourRollNumberNN(nn.Module):
+class cs19b004NN(nn.Module):
   pass
   # ... your code ...
   # ... write init and forward functions appropriately ...
@@ -48,7 +56,7 @@ def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
   return model
   
   
-  print ('Returning model... (rollnumber: xx)')
+  print ('Returning model... (cs19b004: xx)')
   
   return model
 
