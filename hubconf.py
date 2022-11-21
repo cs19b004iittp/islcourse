@@ -40,15 +40,15 @@ def get_data_circles(n_points=100):
   # write your code ...
   return X,y
 
-from sklearn.datasets import fetch_openml
+from sklearn.datasets import load_digits
 def get_data_mnist():
   pass
   # write your code here
   # Refer to sklearn data sets
 
-  mnist = fetch_openml('MNIST original')
-  X=mnist.data
-  y=mnist.target
+  digits=load_digits()
+  X=digits.data
+  y=digits.target
   # write your code ...
   return X,y
 
@@ -114,6 +114,16 @@ def get_metrics(model=None,X=None,y=None):
   auc = roc_auc_score(y, model.predict_proba(X), multi_class='ovr' )
   return acc, prec, rec, f1, auc
 
+from sklearn.model_selection import train_test_split
+X, y = get_data_mnist()
+Xtrain,Xtest,ytrain,ytest = train_test_split(X,y,test_size=0.3)
+
+lr_model = build_lr_model(Xtrain, ytrain)
+rf_model = build_rf_model(Xtrain, ytrain)
+
+print(get_metrics(lr_model, Xtest, ytest))
+
+
 from sklearn.model_selection import GridSearchCV
 def get_paramgrid_lr():
   # you need to return parameter grid dictionary for use in grid search cv
@@ -157,6 +167,14 @@ def perform_gridsearch_cv_multimetric(model=None, param_grid=None, cv=5, X=None,
     top1_scores.append(grid_search_cv.best_score_)
 
   return top1_scores
+
+param_grid = get_paramgrid_lr()
+print("------------")
+print(perform_gridsearch_cv_multimetric(model=LogisticRegression(), param_grid=param_grid, cv=5, X=X, y=y, metrics=['accuracy']))
+
+param_grid = get_paramgrid_rf()
+print("------------")
+print(perform_gridsearch_cv_multimetric(model=RandomForestClassifier(), param_grid=param_grid, cv=5, X=X, y=y, metrics=['accuracy']))
 
 ###### PART 3 ######
 
