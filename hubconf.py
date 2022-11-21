@@ -25,6 +25,7 @@ def get_data_blobs(n_points=100):
   # write your code ...
   return X,y
 
+from sklearn.cluster import make_circles
 def get_data_circles(n_points=100):
   pass
   # write your code here
@@ -41,11 +42,18 @@ def get_data_mnist():
   # write your code ...
   return X,y
 
+from sklearn.cluster import KMeans 
 def build_kmeans(X=None,k=10):
   pass
   # k is a variable, calling function can give a different number
   # Refer to sklearn KMeans method
-  km = None # this is the KMeans object
+   # this is the KMeans object
+  km= KMeans(n_clusters=4) 
+  km.fit(X)
+  y_kmeans = km.predict(X)
+  plt.scatter(X[:, 0], X[:, 1], c=y_kmeans, s=50, cmap='viridis')
+  centers = km.cluster_centers_
+  plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, alpha=0.5)
   # write your code ...
   return km
 
