@@ -10,7 +10,7 @@ import torch.nn as tn
 import torchvision.transforms as tt
 import torch.utils as utils
 
-%matplotlib inline
+
 import matplotlib.pyplot as plt
 import seaborn
 
